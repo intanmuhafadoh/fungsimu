@@ -261,3 +261,561 @@ function restartQuiz() {
 
     showQuestion();
 }
+// =========================
+// CHATBOT FUNGSI MU AI
+// =========================
+
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-input");
+const chatMessages = document.getElementById("chat-messages");
+const chatLoading = document.getElementById("chat-loading");
+const chatSend = document.getElementById("chat-send");
+
+// Menyimpan riwayat percakapan
+let chatHistory = [];
+    // Mengubah Markdown AI menjadi tampilan HTML
+  function formatAIMessage(message) {
+    let text = message
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\r\n/g, "\n")
+        .trim();
+
+    // Format rumus matematika
+    text = text.replace(
+        /\\\((.*?)\\\)/g,
+        '<span class="chat-math">$1</span>'
+    );
+
+    text = text.replace(
+        /\\\[([\s\S]*?)\\\]/g,
+        '<span class="chat-math">$1</span>'
+    );
+
+    const lines = text.split("\n");
+    const output = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+
+        // Mendeteksi tabel Markdown
+        if (
+            line.includes("|") &&
+            i + 1 < lines.length &&
+            /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(lines[i + 1].trim())
+        ) {
+            const headers = line
+                .replace(/^\||\|$/g, "")
+                .split("|")
+                .map(cell => cell.trim());
+
+            let tableHTML = "<table><thead><tr>";
+
+            headers.forEach(header => {
+                tableHTML += "<th>" + header + "</th>";
+            });
+
+            tableHTML += "</tr></thead><tbody>";
+
+            i += 2;
+
+            while (i < lines.length && lines[i].includes("|")) {
+                const cells = lines[i]
+                    .trim()
+                    .replace(/^\||\|$/g, "")
+                    .split("|")
+                    .map(cell => cell.trim());
+
+                tableHTML += "<tr>";
+
+                cells.forEach(cell => {
+                    tableHTML += "<td>" + cell + "</td>";
+                });
+
+                tableHTML += "</tr>";
+                i++;
+            }
+
+            tableHTML += "</tbody></table>";
+            output.push(tableHTML);
+            i--;
+            continue;
+        }
+
+        // Garis pemisah
+        if (line === "---") {
+            output.push("<hr>");
+            continue;
+        }
+
+        // Judul
+        if (line.startsWith("### ")) {
+            output.push("<h4>" + line.substring(4) + "</h4>");
+            continue;
+        }
+
+        if (line.startsWith("## ") || line.startsWith("# ")) {
+            output.push("<h3>" + line.replace(/^#+ /, "") + "</h3>");
+            continue;
+        }
+
+        // Tulisan tebal dan miring
+        line = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        line = line.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+        output.push(line);
+    }
+
+    return output.join("<br>");
+}
+// Menambahkan pesan ke tampilan chatbot
+function addChatMessage(message, sender) {
+    const messageElement = document.createElement("div");
+
+    messageElement.classList.add(
+        "chat-message",
+        sender === "user" ? "user-message" : "ai-message"
+    );
+
+    if (sender === "ai") {
+    messageElement.innerHTML = formatAIMessage(message);
+} else {
+    messageElement.textContent = message;
+}
+    chatMessages.appendChild(messageElement);
+
+    // Menggeser tampilan ke pesan terbaru
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Mengirim pesan ke backend Groq
+if (chatForm) {
+    chatForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const message = chatInput.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+        // Menampilkan pesan pengguna
+        addChatMessage(message, "user");
+
+        chatInput.value = "";
+        chatInput.disabled = true;
+        chatSend.disabled = true;
+
+        chatLoading.style.display = "block";
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        try {
+            const response = await fetch(
+                "http://localhost:3000/api/chat",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: chatHistory
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error || "Gagal menghubungi asisten AI."
+                );
+            }
+
+            // Mengambil jawaban dari AI
+            const aiReply = data.reply;
+
+            if (!aiReply) {
+                throw new Error("AI belum memberikan jawaban.");
+            }
+
+            // Menampilkan jawaban AI
+            addChatMessage(aiReply, "ai");
+
+            // Menyimpan riwayat percakapan
+            chatHistory.push(
+                {
+                    role: "user",
+                    content: message
+                },
+                {
+                    role: "assistant",
+                    content: aiReply
+                }
+            );
+
+        } catch (error) {
+            addChatMessage(
+                "Maaf, terjadi kendala saat menghubungi FungsiMu AI. Pastikan backend sedang berjalan, lalu coba lagi.",
+                "ai"
+            );
+
+            console.error("Chatbot error:", error);
+
+        } finally {
+            chatLoading.style.display = "none";
+            chatInput.disabled = false;
+            chatSend.disabled = false;
+            chatInput.focus();
+        }
+    });
+}
+// ===================================
+// SISTEM TANTANGAN BERDASARKAN LEVEL
+// ===================================
+
+const levelQuestions = {
+    Mudah: [
+        {
+            question: "Diketahui f(x) = 2x + 3. Berapakah f(2)?",
+            options: ["5", "7", "8", "9"],
+            answer: 1,
+            explanation: "f(2) = 2(2) + 3 = 4 + 3 = 7."
+        },
+        {
+            question: "Diketahui f(x) = 3x + 1. Berapakah f(1)?",
+            options: ["3", "4", "5", "6"],
+            answer: 1,
+            explanation: "f(1) = 3(1) + 1 = 4."
+        },
+        {
+            question: "Jika f(x) = x + 5, berapakah f(3)?",
+            options: ["7", "8", "9", "10"],
+            answer: 1,
+            explanation: "f(3) = 3 + 5 = 8."
+        },
+        {
+            question: "Jika f(x) = 4x, berapakah f(2)?",
+            options: ["6", "8", "10", "12"],
+            answer: 1,
+            explanation: "f(2) = 4 × 2 = 8."
+        },
+        {
+            question: "Diketahui f(x) = 5x - 2. Berapakah f(2)?",
+            options: ["6", "7", "8", "9"],
+            answer: 2,
+            explanation: "f(2) = 5(2) - 2 = 10 - 2 = 8. Jawaban yang benar adalah 8, yaitu pilihan ketiga."
+        }
+    ],
+
+    Sedang: [
+        {
+            question: "Jika f(x) = 3x + 4, berapakah f(5)?",
+            options: ["15", "17", "19", "20"],
+            answer: 2,
+            explanation: "f(5) = 3(5) + 4 = 15 + 4 = 19."
+        },
+        {
+            question: "Diketahui f(x) = 2x - 5. Jika f(a) = 9, berapakah nilai a?",
+            options: ["5", "6", "7", "8"],
+            answer: 2,
+            explanation: "2a - 5 = 9, sehingga 2a = 14 dan a = 7."
+        },
+        {
+            question: "Jika f(x) = 4x + 2, berapakah f(-2)?",
+            options: ["-10", "-8", "-6", "-4"],
+            answer: 2,
+            explanation: "f(-2) = 4(-2) + 2 = -8 + 2 = -6."
+        },
+        {
+            question: "Diketahui f(x) = ax + 2 dan f(3) = 14. Berapakah nilai a?",
+            options: ["2", "3", "4", "5"],
+            answer: 2,
+            explanation: "3a + 2 = 14, maka 3a = 12 dan a = 4."
+        },
+        {
+            question: "Jika f(x) = 2x + 1, berapakah nilai x jika f(x) = 13?",
+            options: ["5", "6", "7", "8"],
+            answer: 1,
+            explanation: "2x + 1 = 13, sehingga 2x = 12 dan x = 6."
+        }
+    ],
+
+    Sulit: [
+        {
+            question: "Diketahui f(x) = 2x + 3 dan g(x) = x - 1. Berapakah f( g(4) )?",
+            options: ["7", "9", "11", "13"],
+            answer: 1,
+            explanation: "g(4) = 4 - 1 = 3. Kemudian f(3) = 2(3) + 3 = 9."
+        },
+        {
+            question: "Jika f(x) = ax + 5 dan f(2) = 13, berapakah f(4)?",
+            options: ["17", "19", "21", "23"],
+            answer: 2,
+            explanation: "2a + 5 = 13, maka a = 4. Jadi f(4) = 4(4) + 5 = 21."
+        },
+        {
+            question: "Diketahui f(x) = 3x - 2. Jika f(a) = 16, berapakah f(a + 2)?",
+            options: ["20", "22", "24", "26"],
+            answer: 1,
+            explanation: "3a - 2 = 16, maka a = 6. Jadi f(a + 2) = f(8) = 3(8) - 2 = 22. Jawaban yang benar adalah 22, yaitu pilihan kedua."
+        },
+        {
+            question: "Suatu fungsi dinyatakan f(x) = ax + b. Jika f(1) = 5 dan f(3) = 11, berapakah f(5)?",
+            options: ["15", "17", "19", "21"],
+            answer: 1,
+            explanation: "a + b = 5 dan 3a + b = 11. Diperoleh a = 3 dan b = 2. Jadi f(5) = 3(5) + 2 = 17."
+        },
+        {
+            question: "Diketahui f(x) = 2x² - 3x + 1. Berapakah f(-2)?",
+            options: ["9", "11", "13", "15"],
+            answer: 3,
+            explanation: "f(-2) = 2(-2)² - 3(-2) + 1 = 8 + 6 + 1 = 15."
+        }
+    ]
+};
+
+let activeLevel = "";
+let levelIndex = 0;
+let levelScore = 0;
+let levelAnswered = false;
+
+function startLevel(level) {
+    activeLevel = level;
+    levelIndex = 0;
+    levelScore = 0;
+
+    // Sembunyikan pilihan level setelah dipilih
+    document.querySelector(".level-grid").style.display = "none";
+    document.getElementById("level-message").style.display = "none";
+
+    // Tampilkan area kuis
+    document.getElementById("level-quiz").style.display = "block";
+    document.getElementById("level-title").textContent = "Level " + level;
+
+    document.getElementById("level-question-number").style.display = "block";
+    document.getElementById("level-question").style.display = "block";
+    document.getElementById("level-options").style.display = "grid";
+    document.getElementById("level-feedback").style.display = "block";
+    document.getElementById("level-explanation").style.display = "block";
+    document.getElementById("level-next-button").style.display = "none";
+    document.getElementById("level-result").style.display = "none";
+    showLevelQuestion();
+}
+function showLevelQuestion() {
+    const question = levelQuestions[activeLevel][levelIndex];
+
+    levelAnswered = false;
+
+    document.getElementById("level-question-number").textContent =
+        "Soal " + (levelIndex + 1) + " dari 5";
+
+    document.getElementById("level-progress-bar").style.width =
+        ((levelIndex + 1) / 5 * 100) + "%";
+
+    document.getElementById("level-question").textContent =
+        question.question;
+
+    document.getElementById("level-feedback").textContent = "";
+    document.getElementById("level-explanation").textContent = "";
+    document.getElementById("level-next-button").style.display = "none";
+
+    const optionsContainer = document.getElementById("level-options");
+    optionsContainer.innerHTML = "";
+
+    question.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.className = "option-button";
+        button.textContent = option;
+        button.onclick = () => checkLevelAnswer(index);
+        optionsContainer.appendChild(button);
+    });
+}
+
+function checkLevelAnswer(selectedIndex) {
+    if (levelAnswered) return;
+
+    levelAnswered = true;
+
+    const question = levelQuestions[activeLevel][levelIndex];
+    const buttons = document.querySelectorAll("#level-options button");
+
+    buttons.forEach((button, index) => {
+        button.disabled = true;
+
+        if (index === question.answer) {
+            button.classList.add("correct");
+        } else if (index === selectedIndex) {
+            button.classList.add("wrong");
+        }
+    });
+
+    const feedback = document.getElementById("level-feedback");
+
+    if (selectedIndex === question.answer) {
+        levelScore += 20;
+addXP(20);
+feedback.textContent = "🎉 Benar! +20 poin XP";
+    } else {
+        feedback.textContent = "Belum tepat. Yuk, pelajari pembahasannya!";
+    }
+
+    document.getElementById("level-explanation").textContent =
+        question.explanation;
+
+    const nextButton = document.getElementById("level-next-button");
+    nextButton.textContent =
+        levelIndex === 4 ? "Lihat Hasil 🏆" : "Soal Berikutnya →";
+    nextButton.style.display = "inline-block";
+}
+
+function nextLevelQuestion() {
+    if (!levelAnswered) return;
+
+    if (levelIndex < 4) {
+        levelIndex++;
+        showLevelQuestion();
+    } else {
+        showLevelResult();
+    }
+}
+
+function showLevelResult() {
+    document.getElementById("level-question-number").style.display = "none";
+    document.getElementById("level-progress-bar").style.width = "100%";
+    document.getElementById("level-question").style.display = "none";
+    document.getElementById("level-options").style.display = "none";
+    document.getElementById("level-feedback").style.display = "none";
+    document.getElementById("level-explanation").style.display = "none";
+    document.getElementById("level-next-button").style.display = "none";
+
+    document.getElementById("level-result").style.display = "block";
+    completeCurrentLevel();
+    const badge = document.getElementById("earned-badge");
+
+if (activeLevel === "Mudah") {
+    badge.textContent = "🌱 Pejuang Fungsi";
+} else if (activeLevel === "Sedang") {
+    badge.textContent = "⭐ Jago Fungsi";
+} else if (activeLevel === "Sulit") {
+    badge.textContent = "🏆 Master Fungsi";
+}
+    document.getElementById("level-final-score").textContent =
+        "Skor kamu: " + levelScore + " dari 100";
+const celebration = document.getElementById("celebration");
+
+if (levelScore === 100) {
+    celebration.style.display = "block";
+} else {
+    celebration.style.display = "none";
+}
+    let message = "";
+
+    if (levelScore === 100) {
+        message = "Luar biasa! Semua jawaban benar! 🌟";
+    } else if (levelScore >= 60) {
+        message = "Bagus! Terus tingkatkan kemampuanmu! 💪";
+    } else {
+        message = "Jangan menyerah! Pelajari kembali materinya, ya! 📚";
+    }
+
+    document.getElementById("level-final-message").textContent = message;
+}
+
+function restartLevel() {
+    levelIndex = 0;
+    levelScore = 0;
+
+    document.getElementById("level-question-number").style.display = "block";
+    document.getElementById("level-question").style.display = "block";
+    document.getElementById("level-options").style.display = "grid";
+    document.getElementById("level-feedback").style.display = "block";
+    document.getElementById("level-explanation").style.display = "block";
+
+    document.getElementById("level-result").style.display = "none";
+    showLevelQuestion();
+}
+function backToLevels() {
+    // Sembunyikan area kuis
+    document.getElementById("level-quiz").style.display = "none";
+
+    // Tampilkan kembali pilihan level
+    document.querySelector(".level-grid").style.display = "grid";
+    document.getElementById("level-message").style.display = "block";
+
+    // Reset tampilan hasil kuis
+    document.getElementById("level-result").style.display = "none";
+}
+// ===================================
+// SISTEM XP DAN BADGE FUNGSI MU
+// ===================================
+
+let totalXP = Number(localStorage.getItem("fungsiMuXP")) || 0;
+
+function updateXPDisplay() {
+    const xpDisplay = document.getElementById("total-xp");
+    const badgeDisplay = document.querySelector(".xp-badge");
+
+    if (xpDisplay) {
+        xpDisplay.textContent = totalXP;
+    }
+
+    if (badgeDisplay) {
+        if (totalXP >= 300) {
+            badgeDisplay.textContent = "🏆 Master";
+        } else if (totalXP >= 100) {
+            badgeDisplay.textContent = "🥇 Hebat";
+        } else {
+            badgeDisplay.textContent = "🏅 Pemula";
+        }
+    }
+}
+
+function addXP(amount) {
+    totalXP += amount;
+    localStorage.setItem("fungsiMuXP", totalXP);
+    updateXPDisplay();
+}
+
+// Tampilkan XP saat website dibuka
+updateXPDisplay();
+// ===================================
+// SISTEM PROGRESS PERJALANAN BELAJAR
+// ===================================
+
+let completedLevels = JSON.parse(
+    localStorage.getItem("fungsiMuCompletedLevels") || "[]"
+);
+
+function updateJourneyProgress() {
+    const total = completedLevels.length;
+    const percentage = (total / 3) * 100;
+
+    const journeyText = document.getElementById("journey-text");
+    const journeyBar = document.getElementById("journey-progress");
+
+    if (journeyText) {
+        journeyText.textContent = total + " dari 3 tantangan selesai";
+    }
+
+    if (journeyBar) {
+        journeyBar.style.width = percentage + "%";
+    }
+}
+
+function completeCurrentLevel() {
+    if (!completedLevels.includes(activeLevel)) {
+        completedLevels.push(activeLevel);
+
+        localStorage.setItem(
+            "fungsiMuCompletedLevels",
+            JSON.stringify(completedLevels)
+        );
+    }
+
+    updateJourneyProgress();
+}
+
+// Tampilkan progress saat website dibuka
+updateJourneyProgress();

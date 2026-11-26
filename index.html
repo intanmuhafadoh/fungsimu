@@ -3,330 +3,559 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FungsiMu - Belajar Nilai Fungsi</title>
+    <title>FungsiMu - Math Adventure</title>
     <link rel="stylesheet" href="style.css">
+<style>
+    .game-screen {
+    min-height: 80vh;
+    padding: 55px 8%;
+}
+
+.welcome-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #FBF5E9, #F5DF9B);
+}
+
+.welcome-screen h1 {
+    font-size: clamp(48px, 8vw, 76px);
+    color: #192B45;
+    font-weight: 900;
+}
+
+.welcome-screen h2 {
+    color: #781F35;
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+
+.welcome-screen p {
+    color: #76645F;
+    margin-bottom: 30px;
+}
+
+.game-button {
+    border: none;
+    padding: 17px 24px;
+    border-radius: 18px;
+    background: #F5DF9B;
+    color: #192B45;
+    font-size: 17px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #D6BD78;
+    transition: 0.2s;
+}
+
+.game-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 9px 0 #D6BD78;
+}
+
+.start-button {
+    background: #713F35;
+    color: white;
+    box-shadow: 0 6px 0 #4D2924;
+    padding: 16px 32px;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.menu-card {
+    min-height: 155px;
+    padding: 25px;
+    border: 3px solid white;
+    border-radius: 24px;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 8px 0 rgba(25, 43, 69, 0.10);
+    transition: 0.2s;
+}
+
+.menu-card:hover {
+    transform: translateY(-5px);
+}
+
+.menu-card .emoji {
+    display: block;
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.menu-card h3 {
+    font-size: 21px;
+    color: #192B45;
+}
+
+.menu-card p {
+    color: #76645F;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.menu-card:nth-child(1) {
+    background: #F8EED5;
+}
+
+.menu-card:nth-child(2) {
+    background: #F5DF9B;
+}
+
+.menu-card:nth-child(3) {
+    background: #F3E0DD;
+}
+
+.menu-card:nth-child(4) {
+    background: #E5EBDD;
+}
+
+.back-button {
+    margin-bottom: 25px;
+    padding: 10px 17px;
+    border: 0;
+    border-radius: 12px;
+    background: #192B45;
+    color: white;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.lesson-card {
+    background: white;
+    padding: 23px;
+    margin: 18px 0;
+    border-radius: 18px;
+    border: 2px solid #E8DCCB;
+    box-shadow: 0 8px 20px rgba(113, 63, 53, 0.07);
+}
+
+.lesson-card h3 {
+    color: #713F35;
+    margin-bottom: 10px;
+}
+
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.level-card {
+    padding: 25px 12px;
+    border: 2px solid #E8DCCB;
+    border-radius: 18px;
+    background: #F8EED5;
+    color: #192B45;
+    font-weight: 900;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.level-card:hover {
+    background: #F5DF9B;
+}
+
+.notice {
+    margin-top: 20px;
+    padding: 15px;
+    background: #F3E0DD;
+    border-radius: 12px;
+    color: #781F35;
+}
+
+@media (max-width: 650px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .level-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .game-screen {
+        padding: 35px 6%;
+    }
+}
+    </style>
 </head>
+
 <body>
 
-    <!-- NAVBAR -->
-    <header class="navbar">
-        <div class="logo">Fungsi<span>Mu.</span></div>
+    <!-- HALAMAN PEMBUKA -->
+    <section id="welcome" class="welcome-screen">
+        <div style="font-size:65px;">🎮</div>
+        <h1>FungsiMu</h1>
+        <h2>Math Adventure</h2>
+        <p>MATEMATIKA KELAS VIII SMP</p>
+        <p>Siap menjelajahi dunia nilai fungsi?</p>
+        <button class="game-button start-button" onclick="showMenu()">
+            Mulai Petualangan 🚀
+        </button>
+        <p style="margin-top:25px;">Belajar • Bermain • Taklukkan Tantangan</p>
+    </section>
 
-        <nav>
-            <a href="#beranda">Beranda</a>
-            <a href="#materi">Materi</a>
-            <a href="#contoh">Contoh</a>
-            <a href="#latihan">Latihan</a>
-        </nav>
-    </header>
+    <!-- MENU UTAMA -->
+    <section id="main-menu" class="game-screen" style="display:none;">
+        <div style="text-align:center;">
+            <p class="tagline">SELAMAT DATANG DI DUNIA FUNGSI</p>
+            <h1 style="color:#192B45;">Pilih Petualanganmu!</h1>
+            <p>Belajar matematika jadi lebih seru bersama FungsiMu.</p>
+            <div class="journey-panel">
+    <h3>🗺️ Perjalanan Belajarmu</h3>
+    <p id="journey-text">0 dari 3 tantangan selesai</p>
 
-    <main>
+    <div class="journey-track">
+        <div id="journey-progress" class="journey-fill"></div>
+    </div>
+</div>
 
-        <!-- BERANDA -->
-        <section id="beranda" class="hero">
-            <div class="hero-content">
-                <p class="tagline">MATEMATIKA KELAS VIII SMP</p>
+<div class="xp-panel">
+    <div class="xp-icon">⭐</div>
 
-                <h1>Belajar Nilai Fungsi Jadi Lebih Mudah!</h1>
+    <div class="xp-info">
+        <h3>Pengalaman Belajar</h3>
+        <p><span id="total-xp">0</span> XP terkumpul</p>
+    </div>
 
-                <p>
-                    Yuk, pahami konsep nilai fungsi melalui materi,
-                    contoh penyelesaian, dan latihan interaktif.
-                </p>
+    <div class="xp-badge">🏅 Pemula</div>
+</div>
+        <div class="menu-grid">
+            <button class="menu-card" onclick="showPage('materi')">
+                <span class="emoji">📚</span>
+                <h3>Materi</h3>
+                <p>Pelajari konsep nilai fungsi.</p>
+            </button>
 
-                <a href="#materi" class="btn">Mulai Belajar</a>
+            <button class="menu-card" onclick="showPage('latihan')">
+                <span class="emoji">✏️</span>
+                <h3>Latihan</h3>
+                <p>Uji pemahamanmu dengan 5 soal.</p>
+            </button>
+
+            <button class="menu-card" onclick="showPage('soal')">
+                <span class="emoji">🏆</span>
+                <h3>Soal</h3>
+                <p>Pilih tingkat tantanganmu.</p>
+            </button>
+
+            <button class="menu-card" onclick="showPage('asisten')">
+                <span class="emoji">🤖</span>
+                <h3>Asisten AI</h3>
+                <p>Tanyakan hal yang belum kamu pahami.</p>
+            </button>
+        </div>
+    </section>
+
+    <!-- HALAMAN MATERI -->
+    <section id="materi" class="game-screen" style="display:none;">
+        <button class="back-button" onclick="showMenu()">← Kembali ke Menu</button>
+
+        <p class="tagline">AREA BELAJAR</p>
+        <h2>📚 Materi Nilai Fungsi</h2>
+        <p>Pelajari materi berikut sebelum mengerjakan tantangan.</p>
+
+        <div class="lesson-card">
+            <h3>1. Pengertian Fungsi</h3>
+            <p>Fungsi adalah relasi yang memasangkan setiap anggota domain dengan tepat satu anggota kodomain.</p>
+            <p>Artinya, setiap nilai masukan hanya memiliki satu nilai keluaran.</p>
+        </div>
+
+        <div class="lesson-card">
+            <h3>2. Notasi dan Bentuk Fungsi</h3>
+            <p>Fungsi biasanya ditulis menggunakan notasi f(x). Salah satu bentuk fungsi sederhana adalah:</p>
+            <div class="formula">f(x) = ax + b</div>
+            <p>a dan b merupakan bilangan tetap, sedangkan x merupakan variabel.</p>
+        </div>
+
+        <div class="lesson-card">
+            <h3>3. Domain, Kodomain, dan Range</h3>
+            <ul style="padding-left:22px;">
+                <li><b>Domain:</b> himpunan nilai masukan.</li>
+                <li><b>Kodomain:</b> himpunan tujuan atau keluaran yang mungkin.</li>
+                <li><b>Range:</b> himpunan nilai keluaran yang benar-benar dihasilkan.</li>
+            </ul>
+        </div>
+
+        <div class="lesson-card">
+            <h3>4. Cara Menentukan Nilai Fungsi</h3>
+            <p>Untuk menentukan nilai fungsi, gantikan variabel x dengan bilangan yang diberikan.</p>
+            <div class="formula">f(x) = 2x + 3</div>
+            <p>Misalnya, tentukan f(4):</p>
+            <p>f(4) = 2(4) + 3</p>
+            <p>f(4) = 8 + 3</p>
+            <div class="answer">Jadi, f(4) = 11.</div>
+        </div>
+
+        <div class="lesson-card">
+            <h3>5. Menentukan Nilai Fungsi dalam Tabel</h3>
+            <p>Diketahui f(x) = 2x + 1. Perhatikan tabel berikut.</p>
+            <table>
+                <tr><th>x</th><th>Perhitungan</th><th>f(x)</th></tr>
+                <tr><td>1</td><td>2(1) + 1</td><td>3</td></tr>
+                <tr><td>2</td><td>2(2) + 1</td><td>5</td></tr>
+                <tr><td>3</td><td>2(3) + 1</td><td>7</td></tr>
+                <tr><td>4</td><td>2(4) + 1</td><td>9</td></tr>
+            </table>
+        </div>
+
+        <div class="lesson-card">
+            <h3>6. Penyajian Fungsi</h3>
+            <p>Fungsi dapat disajikan dalam beberapa bentuk, yaitu:</p>
+            <ul style="padding-left:22px;">
+                <li>Diagram panah.</li>
+                <li>Himpunan pasangan berurutan.</li>
+                <li>Tabel.</li>
+                <li>Persamaan atau rumus fungsi.</li>
+            </ul>
+        </div>
+
+        <div class="lesson-card">
+            <h3>7. Penerapan Fungsi dalam Kehidupan Sehari-hari</h3>
+            <p>Fungsi dapat digunakan untuk menghitung biaya pembelian barang.</p>
+            <p>Misalnya, harga satu buku Rp4.000 dan biaya bungkus tetap Rp2.000.</p>
+            <div class="formula">f(x) = 4.000x + 2.000</div>
+            <p>Jika membeli 3 buku:</p>
+            <p>f(3) = 4.000(3) + 2.000 = 14.000</p>
+            <div class="answer">Total biaya adalah Rp14.000.</div>
+        </div>
+
+        <div class="lesson-card">
+            <h3>8. Kesalahan yang Harus Dihindari</h3>
+            <ul style="padding-left:22px;">
+                <li>Lupa mengganti x dengan nilai yang diberikan.</li>
+                <li>Salah melakukan perkalian.</li>
+                <li>Tidak memperhatikan tanda positif dan negatif.</li>
+                <li>Tidak mengikuti urutan operasi hitung.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- HALAMAN LATIHAN -->
+    <section id="latihan" class="game-screen" style="display:none;">
+        <button class="back-button" onclick="showMenu()">← Kembali ke Menu</button>
+
+        <p class="tagline">AREA LATIHAN</p>
+        <h2>✏️ Tantangan Nilai Fungsi</h2>
+        <p>Jawab lima soal berikut. Setiap jawaban benar mendapatkan 20 poin!</p>
+
+        <div class="quiz-box">
+            <p id="question-number">Soal 1 dari 5</p>
+
+            <div class="progress-container">
+                <div id="progress-bar"></div>
             </div>
 
-            <div class="hero-card">
-                <div class="math-symbol">f(x)</div>
-                <h2>Kenali Nilai Fungsi</h2>
-                <p>Memahami variabel, substitusi, dan hasil fungsi.</p>
+            <h3 id="question"></h3>
+
+            <div id="options" class="options"></div>
+
+            <button id="hint-button" onclick="showHint()">💡 Lihat Petunjuk</button>
+
+            <p id="hint-text"></p>
+            <p id="feedback"></p>
+            <div id="explanation"></div>
+
+            <button id="next-button" onclick="nextQuestion()" disabled>
+                Soal Berikutnya
+            </button>
+
+            <div id="result" style="display:none;">
+                <h3>🏆 Hasil Petualanganmu!</h3>
+                <h2 id="final-score"></h2>
+                <p id="final-message"></p>
+                <button onclick="restartQuiz()">Ulangi Latihan</button>
+                <button onclick="showMenu()">Kembali ke Menu</button>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- MATERI -->
-<section id="materi" class="section">
-    <p class="tagline">01 - MATERI</p>
+    <!-- HALAMAN PILIHAN LEVEL SOAL -->
+<section id="soal" class="game-screen" style="display:none;">
+    <button class="back-button" onclick="showMenu()">← Kembali ke Menu</button>
 
-    <h2>Mengenal Nilai Fungsi</h2>
+    <p class="tagline">AREA TANTANGAN</p>
+    <h2>🏆 Pilih Tingkat Kesulitan</h2>
+    <p>Seberapa siap kamu menghadapi tantangan nilai fungsi?</p>
 
-    <p>
-        Nilai fungsi adalah hasil yang diperoleh ketika suatu
-        bilangan dimasukkan ke dalam fungsi dengan menggantikan
-        variabel yang tersedia.
+    <div class="level-grid">
+        <button class="level-card" onclick="startLevel('Mudah')">
+            🌱<br><br>Mudah
+        </button>
+
+        <button class="level-card" onclick="startLevel('Sedang')">
+            ⚡<br><br>Sedang
+        </button>
+
+        <button class="level-card" onclick="startLevel('Sulit')">
+            🔥<br><br>Sulit
+        </button>
+    </div>
+
+    <p id="level-message" class="notice">
+        Pilih salah satu level untuk memulai tantangan.
     </p>
 
-    <div class="formula-box">
-        <h3>1. Pengertian Fungsi</h3>
-        <p>
-            Fungsi merupakan aturan yang memasangkan setiap anggota
-            suatu himpunan dengan tepat satu anggota himpunan lainnya.
-            Dalam fungsi, setiap nilai masukan hanya memiliki satu
-            nilai keluaran.
-        </p>
-    </div>
-
-    <div class="formula-box">
-        <h3>2. Notasi dan Bentuk Fungsi</h3>
-        <p>
-            Fungsi biasanya dituliskan menggunakan notasi f(x).
-            Salah satu bentuk fungsi yang sederhana adalah:
-        </p>
-
-        <div class="formula">f(x) = ax + b</div>
-
-        <p>Keterangan:</p>
-        <ul>
-            <li>f = nama fungsi</li>
-            <li>x = variabel atau nilai masukan</li>
-            <li>a = koefisien variabel</li>
-            <li>b = konstanta</li>
-            <li>f(x) = nilai keluaran fungsi</li>
-        </ul>
-
-        <p>Contoh:</p>
-        <div class="formula">f(x) = 2x + 3</div>
-        <p>
-            Artinya, setiap nilai x dikalikan 2, kemudian
-            ditambah 3.
-        </p>
-    </div>
-
-    <div class="formula-box">
-        <h3>3. Domain, Kodomain, dan Range</h3>
-        <p>
-            Dalam suatu fungsi terdapat tiga istilah penting:
-        </p>
-        <ul>
-            <li><b>Domain:</b> himpunan semua nilai masukan.</li>
-            <li><b>Kodomain:</b> himpunan tujuan nilai keluaran.</li>
-            <li><b>Range:</b> himpunan nilai keluaran yang benar-benar dihasilkan.</li>
-        </ul>
-
-        <p>Contoh:</p>
-        <div class="formula">f(x) = 2x</div>
-        <p>
-            Domain = {1, 2, 3}<br>
-            Kodomain = {2, 4, 6, 8}<br>
-            Range = {2, 4, 6}
-        </p>
-    </div>
-
-    <div class="formula-box">
-        <h3>4. Cara Menentukan Nilai Fungsi</h3>
-        <p>
-            Untuk menentukan nilai fungsi, kita mengganti variabel
-            x dengan bilangan yang diketahui. Proses ini disebut
-            substitusi.
-        </p>
-
-        <p>Langkah-langkah:</p>
-        <ol>
-            <li>Tuliskan fungsi yang diketahui.</li>
-            <li>Tentukan nilai x yang akan dimasukkan.</li>
-            <li>Ganti variabel x dengan nilai tersebut.</li>
-            <li>Lakukan operasi hitung.</li>
-            <li>Tuliskan hasil akhirnya.</li>
-        </ol>
-
-        <p><b>Contoh soal:</b></p>
-        <p>Diketahui f(x) = 2x + 3. Tentukan f(4)!</p>
-
-        <div class="formula">
-            f(4) = 2(4) + 3<br>
-            f(4) = 8 + 3<br>
-            f(4) = 11
+    <!-- AREA KUIS LEVEL -->
+    <div id="level-quiz" style="display:none;">
+        <h3 id="level-title"></h3>
+        <p id="level-question-number"></p>
+        <div class="progress-container">
+            <div id="level-progress-bar" class="progress-bar"></div>
         </div>
 
-        <p>
-            Jadi, nilai fungsi f(4) adalah 11.
-        </p>
+        <h3 id="level-question"></h3>
+        <div id="level-options"></div>
+
+        <p id="level-feedback"></p>
+        <p id="level-explanation"></p>
+
+        <button id="level-next-button" class="game-button"
+            onclick="nextLevelQuestion()" style="display:none;">
+            Soal Berikutnya →
+        </button>
+<div id="level-result" style="display:none;">
+
+    <div id="celebration" style="display:none;">
+        🎉 ⭐ 🏆 ⭐ 🎉
+        <h2>PERFECT SCORE!</h2>
+        <p>Kamu berhasil menjawab semua soal dengan benar!</p>
     </div>
 
-    <div class="formula-box">
-        <h3>5. Menentukan Nilai Fungsi dalam Tabel</h3>
-        <p>
-            Nilai fungsi juga dapat disajikan dalam bentuk tabel
-            agar hubungan antara nilai masukan dan keluaran
-            lebih mudah dipahami.
-        </p>
+    <div class="result-icon">🏆</div>
 
-        <p>
-            Contoh: Diketahui f(x) = 2x + 1.
-            Tentukan nilai fungsi untuk x = 1, 2, 3, dan 4.
-        </p>
+    <p class="result-label">LEVEL SELESAI</p>
+    <h2 class="result-heading">Kerja Bagus!</h2>
+    <p class="result-description">
+        Kamu sudah menyelesaikan tantangan. Terus tingkatkan kemampuanmu!
+    </p>
 
-        <table>
-            <tr>
-                <th>x</th>
-                <th>Perhitungan</th>
-                <th>f(x)</th>
-            </tr>
-            <tr>
-                <td>1</td>
-                <td>2(1) + 1</td>
-                <td>3</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>2(2) + 1</td>
-                <td>5</td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>2(3) + 1</td>
-                <td>7</td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>2(4) + 1</td>
-                <td>9</td>
-            </tr>
-        </table>
+    <div class="result-score-card">
+        <p>SKOR AKHIR KAMU</p>
+        <div id="level-final-score"></div>
+        <span>✨ Tetap semangat belajar!</span>
     </div>
 
-    <div class="formula-box">
-        <h3>6. Penyajian Fungsi</h3>
-        <p>Fungsi dapat disajikan dalam beberapa bentuk:</p>
-        <ul>
-            <li><b>Diagram panah:</b> menunjukkan hubungan antara anggota domain dan kodomain.</li>
-            <li><b>Tabel:</b> menunjukkan pasangan nilai masukan dan keluaran.</li>
-            <li><b>Rumus fungsi:</b> menunjukkan aturan untuk memperoleh nilai keluaran.</li>
-        </ul>
-    </div>
+    <p id="level-final-message"></p>
 
-    <div class="formula-box">
-        <h3>7. Penerapan Fungsi dalam Kehidupan Sehari-hari</h3>
-        <p>
-            Fungsi dapat digunakan untuk menghitung biaya,
-            menentukan harga barang, dan menyelesaikan
-            berbagai permasalahan sehari-hari.
-        </p>
-
-        <p><b>Contoh soal:</b></p>
-        <p>
-            Harga satu buku adalah Rp4.000 dan biaya bungkus
-            sebesar Rp2.000. Jika x menyatakan jumlah buku,
-            tentukan biaya untuk membeli 3 buku!
-        </p>
-
-        <div class="formula">
-            f(x) = 4000x + 2000<br>
-            f(3) = 4000(3) + 2000<br>
-            f(3) = 12000 + 2000<br>
-            f(3) = 14000
+    <div class="result-reward">
+        <p>🏅 LENCANA YANG KAMU DAPATKAN</p>
+        <div id="earned-badge" class="earned-badge">
+            Pejuang Fungsi
         </div>
-
-        <p>
-            Jadi, biaya untuk membeli 3 buku adalah Rp14.000.
-        </p>
     </div>
 
-    <div class="formula-box">
-        <h3>8. Kesalahan yang Harus Dihindari</h3>
-        <ul>
-            <li>Tidak mengganti semua variabel x dengan nilai yang diketahui.</li>
-            <li>Menganggap f(4) berarti f dikalikan 4.</li>
-            <li>Keliru membedakan perkalian dan penjumlahan.</li>
-            <li>Tidak memperhatikan tanda positif dan negatif.</li>
-            <li>Tidak mengikuti urutan operasi hitung.</li>
-        </ul>
+    <div class="result-buttons">
+        <button class="game-button" onclick="restartLevel()">
+            🔄 Coba Lagi
+        </button>
 
-        <p>
-            <b>Ingat!</b> f(4) berarti nilai fungsi ketika x = 4,
-            bukan f dikalikan 4.
-        </p>
+        <button class="back-button" onclick="backToLevels()">
+            ← Pilihan Level
+        </button>
+
+        <button class="back-button" onclick="showMenu()">
+            🏠 Kembali ke Menu
+        </button>
     </div>
+
+</div>
+</div>
 </section>
+    <!-- HALAMAN ASISTEN AI -->
+    <section id="asisten" class="game-screen" style="display:none;">
+        <button class="back-button" onclick="showMenu()">← Kembali ke Menu</button>
 
-        <!-- CONTOH -->
-        <section id="contoh" class="section">
-            <p class="tagline">02 - CONTOH</p>
+        <p class="tagline">TEMAN BELAJARMU</p>
+        <h2>🤖 FungsiMu AI</h2>
+        <p>Tanyakan materi nilai fungsi yang ingin kamu pahami.</p>
 
-            <h2>Yuk, Pahami Contohnya!</h2>
-
-            <div class="example-box">
-                <h3>Diketahui:</h3>
-
-                <p>f(x) = 2x + 3</p>
-                <p>Tentukan nilai f(4)!</p>
-
-                <div class="steps">
-                    <p><strong>Langkah 1.</strong> Ganti x dengan 4.</p>
-                    <p><strong>Langkah 2.</strong> f(4) = 2(4) + 3</p>
-                    <p><strong>Langkah 3.</strong> f(4) = 8 + 3</p>
-                    <p><strong>Langkah 4.</strong> f(4) = 11</p>
+        <div class="chat-container">
+            <div class="chat-header">
+                <div>
+                    <h3>FungsiMu AI</h3>
+                    <p>Asisten belajar matematika</p>
                 </div>
+                <span class="chat-status">● Online</span>
+            </div>
 
-                <div class="answer">
-                    Jadi, nilai f(4) adalah 11.
+            <div id="chat-messages" class="chat-messages">
+                <div class="chat-message ai-message">
+                    Halo! Aku FungsiMu AI. Ada yang ingin kamu tanyakan tentang nilai fungsi? 😊
                 </div>
             </div>
-        </section>
 
-        <!-- LATIHAN -->
-        <section id="latihan" class="section">
-            <p class="tagline">03 - LATIHAN</p>
+            <div id="chat-loading" class="chat-loading" style="display:none;">
+                FungsiMu AI sedang mengetik...
+            </div>
 
-            <h2>Uji Pemahamanmu!</h2>
+            <form id="chat-form" class="chat-form">
+                <input
+                    type="text"
+                    id="chat-input"
+                    placeholder="Tulis pertanyaanmu di sini..."
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" id="chat-send">Kirim</button>
+            </form>
 
-            <p>
-                Kerjakan lima soal berikut untuk menguji pemahamanmu
-                tentang nilai fungsi.
+            <p class="chat-note">
+                Pastikan server backend FungsiMu sedang berjalan.
             </p>
+        </div>
+    </section>
 
-            <div class="quiz-box">
-
-                <p id="question-number">Soal 1 dari 5</p>
-
-                <div class="progress-container">
-                    <div id="progress-bar"></div>
-                </div>
-
-                <h3 id="question">
-                    Pertanyaan akan muncul di sini.
-                </h3>
-
-                <div id="options" class="options"></div>
-                
-                <button id="hint-button" onclick="showHint()">
-    Lihat Petunjuk
-</button>
-
-<p id="hint-text"></p>
-
-                <p id="feedback"></p>
-
-                <p id="explanation"></p>
-
-                <button id="next-button"
-                    onclick="nextQuestion()" disabled>
-                    Soal Berikutnya
-                </button>
-
-                <div id="result" style="display: none;">
-                    <h3>Latihan Selesai!</h3>
-
-                    <p id="final-score"></p>
-
-                    <p id="final-message"></p>
-
-                    <button onclick="restartQuiz()">
-                        Ulangi Latihan
-                    </button>
-                </div>
-
-            </div>
-        </section>
-
-    </main>
-
-    <!-- FOOTER -->
     <footer>
-        <p>FungsiMu. | Media Pembelajaran Matematika Kelas VIII</p>
-        <p>Belajar Matematika dengan Cara yang Menyenangkan.</p>
+        <p>© 2026 FungsiMu — Math Adventure</p>
+        <p>Belajar • Bermain • Taklukkan Tantangan</p>
     </footer>
 
+    <!-- NAVIGASI HALAMAN -->
+    <script>
+        function showMenu() {
+            document.getElementById("welcome").style.display = "none";
+
+            const pages = ["main-menu", "materi", "latihan", "soal", "asisten"];
+
+            pages.forEach(function(id) {
+                document.getElementById(id).style.display = "none";
+            });
+
+            document.getElementById("main-menu").style.display = "block";
+            window.scrollTo(0, 0);
+        }
+
+        function showPage(page) {
+            const pages = ["main-menu", "materi", "latihan", "soal", "asisten"];
+
+            pages.forEach(function(id) {
+                document.getElementById(id).style.display = "none";
+            });
+
+            document.getElementById(page).style.display = "block";
+            window.scrollTo(0, 0);
+        }
+
+        function selectLevel(level) {
+            document.getElementById("level-message").textContent =
+                "Kamu memilih level " + level +
+                ". Kumpulan soal khusus untuk level ini belum dihubungkan. " +
+                "Untuk saat ini, gunakan menu Latihan untuk mengerjakan lima soal yang tersedia.";
+        }
+    </script>
+
+    <!-- JAVASCRIPT KUIS DAN ASISTEN AI -->
     <script src="script.js"></script>
 
 </body>
