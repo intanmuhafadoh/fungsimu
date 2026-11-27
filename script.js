@@ -848,6 +848,12 @@ function showPage(pageId) {
     // Tampilkan halaman yang dipilih
     document.getElementById(pageId).style.display = "block";
 
+    // Mulai dari bagian paling atas setiap membuka halaman
+window.scrollTo({
+    top: 0,
+    behavior: "instant"
+});
+
     // Jika masuk ke menu Soal, reset kuis sebelumnya
     if (pageId === "soal") {
         activeLevel = "";
@@ -871,3 +877,13 @@ function showMenu() {
     // Tampilkan menu utama
     showPage("main-menu");
 }
+// TOMBOL KEMBALI KE ATAS
+window.addEventListener("scroll", function () {
+    const backToTop = document.getElementById("back-to-top");
+
+    if (window.scrollY > 200) {
+        backToTop.style.display = "block";
+    } else {
+        backToTop.style.display = "none";
+    }
+});

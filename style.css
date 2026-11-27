@@ -1023,6 +1023,7 @@ footer {
 }
 /* TOMBOL KEMBALI KE ATAS */
 #back-to-top {
+    display: none;
     position: fixed;
     bottom: 25px;
     right: 22px;
