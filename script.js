@@ -580,11 +580,26 @@ let activeLevel = "";
 let levelIndex = 0;
 let levelScore = 0;
 let levelAnswered = false;
+let shuffledLevelQuestions = [];
 
+function shuffleLevelQuestions(questions) {
+    const shuffled = [...questions];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
+}
 function startLevel(level) {
-    activeLevel = level;
-    levelIndex = 0;
-    levelScore = 0;
+   activeLevel = level;
+levelIndex = 0;
+levelScore = 0;
+
+// Acak urutan soal sesuai level yang dipilih
+shuffledLevelQuestions = shuffleLevelQuestions(levelQuestions[activeLevel]);
 
     // Sembunyikan pilihan level setelah dipilih
     document.querySelector(".level-grid").style.display = "none";
@@ -604,7 +619,7 @@ function startLevel(level) {
     showLevelQuestion();
 }
 function showLevelQuestion() {
-    const question = levelQuestions[activeLevel][levelIndex];
+    const question = shuffledLevelQuestions[levelIndex];
 
     levelAnswered = false;
 
@@ -638,7 +653,7 @@ function checkLevelAnswer(selectedIndex) {
 
     levelAnswered = true;
 
-    const question = levelQuestions[activeLevel][levelIndex];
+    const question = shuffledLevelQuestions[levelIndex];
     const buttons = document.querySelectorAll("#level-options button");
 
     buttons.forEach((button, index) => {
@@ -726,6 +741,9 @@ if (levelScore === 100) {
 function restartLevel() {
     levelIndex = 0;
     levelScore = 0;
+
+    // Acak ulang soal saat mencoba kembali
+    shuffledLevelQuestions = shuffleLevelQuestions(levelQuestions[activeLevel]);
 
     document.getElementById("level-question-number").style.display = "block";
     document.getElementById("level-question").style.display = "block";
