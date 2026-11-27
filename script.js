@@ -412,7 +412,7 @@ if (chatForm) {
 
         try {
             const response = await fetch(
-                "http://localhost:3000/api/chat",
+                "https://web-nilai-fungsi-2225250132.vercel.app/api/chat",
                 {
                     method: "POST",
                     headers: {
