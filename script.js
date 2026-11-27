@@ -837,3 +837,37 @@ function completeCurrentLevel() {
 
 // Tampilkan progress saat website dibuka
 updateJourneyProgress();
+// NAVIGASI ANTAR HALAMAN
+function showPage(pageId) {
+
+    // Sembunyikan semua halaman
+    document.querySelectorAll(".game-screen").forEach(page => {
+        page.style.display = "none";
+    });
+
+    // Tampilkan halaman yang dipilih
+    document.getElementById(pageId).style.display = "block";
+
+    // Jika masuk ke menu Soal, reset kuis sebelumnya
+    if (pageId === "soal") {
+        activeLevel = "";
+        levelIndex = 0;
+        levelScore = 0;
+        levelAnswered = false;
+        shuffledLevelQuestions = [];
+
+        document.querySelector(".level-grid").style.display = "grid";
+        document.getElementById("level-message").style.display = "block";
+        document.getElementById("level-quiz").style.display = "none";
+        document.getElementById("level-result").style.display = "none";
+    }
+}
+
+// KEMBALI KE MENU UTAMA
+function showMenu() {
+    // Sembunyikan halaman pembuka
+    document.getElementById("welcome").style.display = "none";
+
+    // Tampilkan menu utama
+    showPage("main-menu");
+}
