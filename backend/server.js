@@ -170,7 +170,12 @@ ATURAN:
     }
 });
 
-// Menjalankan server
-app.listen(PORT, () => {
-    console.log(`Server FungsiMu berjalan di http://localhost:${PORT}`);
-});
+// Menjalankan server secara lokal
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server FungsiMu berjalan di http://localhost:${PORT}`);
+    });
+}
+
+// Mengekspor aplikasi untuk Vercel
+module.exports = app;
